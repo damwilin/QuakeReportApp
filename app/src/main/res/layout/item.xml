@@ -15,7 +15,15 @@
         tools:text="9.9" />
 
     <TextView
-        android:id="@+id/loc"
+        android:id="@+id/near_localization"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        tools:text="San Francisco" />
+
+    <TextView
+        android:id="@+id/localization"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -30,5 +38,12 @@
         android:layout_weight="1"
         tools:text="Feb 2, 2015" />
 
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        tools:text="3:00 PM" />
 
 </LinearLayout>

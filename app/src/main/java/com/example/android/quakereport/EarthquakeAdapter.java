@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.example.android.quakereport.R;
-
 import java.util.ArrayList;
 
 /**
@@ -18,6 +16,8 @@ import java.util.ArrayList;
  */
 
 public class EarthquakeAdapter extends ArrayAdapter<EarthquakeItem> {
+    String nearLocText;
+    String locText;
     public EarthquakeAdapter(Activity context, ArrayList<EarthquakeItem> earthquakeArrayList) {
         super(context, 0, earthquakeArrayList);
     }
@@ -33,14 +33,36 @@ public class EarthquakeAdapter extends ArrayAdapter<EarthquakeItem> {
         TextView mag = (TextView) listView.findViewById(R.id.mag);
         //Set text on that view
         mag.setText(currEq.getMag());
-        //Find view that shows localization
-        TextView loc = (TextView) listView.findViewById(R.id.loc);
+        //Split text of localization
+        splitLocalizationText(currEq.getLoc());
+        //Find view that shows near localization
+        TextView nearLoc = (TextView) listView.findViewById(R.id.near_localization);
         //Set text on that view
-        loc.setText(currEq.getLoc());
+        nearLoc.setText(nearLocText);
+        //Find view that shows localization
+        TextView loc = (TextView) listView.findViewById(R.id.localization);
+        //Set text on that view
+        loc.setText(locText);
         //Find view that shows date
         TextView date = (TextView) listView.findViewById(R.id.date);
         //Set text on that view
         date.setText(currEq.getDate());
+        //Find view that shows time
+        TextView time = (TextView) listView.findViewById(R.id.time);
+        //Set text on that view
+        time.setText(currEq.getTime());
         return listView;
+    }
+
+    private void splitLocalizationText(String localization) {
+        int ofIndex = localization.indexOf("of");
+        if (ofIndex == -1) {
+            nearLocText = "Near the";
+            locText = localization;
+        } else {
+            nearLocText = localization.substring(0, ofIndex + 2);
+            locText = localization.substring(ofIndex + 2);
+        }
+
     }
 }
