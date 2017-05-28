@@ -28,7 +28,6 @@ public final class QueryUtils {
      * Sample JSON response for a USGS query
      */
     private static final String LOG_TAG = QueryUtils.class.getSimpleName();
-    private static final String USGS_REQUEST_URL = "http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
 
     /**
      * Create a private constructor because no one should ever create a {@link QueryUtils} object.
@@ -38,11 +37,23 @@ public final class QueryUtils {
     private QueryUtils() {
     }
 
+    public static ArrayList<EarthquakeItem> fetchEarthquakes(String requestUrl) {
+        URL url = createUrl(requestUrl);
+        String jsonResponse = null;
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error closing input stream", e);
+        }
+        return extractEarthquakes(jsonResponse);
+    }
+
+
     /**
      * Return a list of {@link EarthquakeItem} objects that has been built up from
      * parsing a JSON response.
      */
-    public static ArrayList<EarthquakeItem> extractEarthquakes(String jsonResponse) {
+    private static ArrayList<EarthquakeItem> extractEarthquakes(String jsonResponse) {
 
         // Create an empty ArrayList that we can start adding earthquakes to
         ArrayList<EarthquakeItem> earthquakes = new ArrayList<>();
