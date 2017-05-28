@@ -15,37 +15,37 @@
  */
 package com.example.android.quakereport;
 
+import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Intent;
+import android.content.Loader;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
 import java.util.ArrayList;
+import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+public class EarthquakeActivity extends AppCompatActivity implements LoaderCallbacks<List<EarthquakeItem>> {
 
-    public static final String LOG_TAG = EarthquakeActivity.class.getName();
-    public static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
-    public ListView earthquakeListView;
+    private static final String LOG_TAG = EarthquakeActivity.class.getName();
+    private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
+    private static final int LOADER_ID = 1;
+    private EarthquakeAdapter earthquakeAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
-
-
-        earthquakeListView = (ListView) findViewById(R.id.list);
-        //Create object for EarthquakeAsyncClass
-        EarthquakeAsyncClass earthquakeAsyncClass = new EarthquakeAsyncClass();
-        // Create a list of earthquake locations.
-        earthquakeAsyncClass.execute(USGS_REQUEST_URL);
-
-        // Set the adapter on the {@link ListView}
-        // so the list can be populated in the user interface
-
+        ListView earthquakeListView = (ListView) findViewById(R.id.list);
+        earthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<EarthquakeItem>());
+        earthquakeListView.setAdapter(earthquakeAdapter);
+        LoaderManager loaderManager = getLoaderManager();
+        loaderManager.initLoader(LOADER_ID, null, this);
+        Log.e(LOG_TAG, "initLoader()");
         earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -62,23 +62,23 @@ public class EarthquakeActivity extends AppCompatActivity {
             startActivity(intent);
     }
 
-    private void updateUI(ArrayList<EarthquakeItem> earthquakeItems) {
-        EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, earthquakeItems);
-        earthquakeListView.setAdapter(adapter);
+    @Override
+    public Loader<List<EarthquakeItem>> onCreateLoader(int id, Bundle args) {
+        Log.e(LOG_TAG, "onCreateLoader() callback");
+        return new EarthquakeLoader(this, USGS_REQUEST_URL);
     }
 
-    private class EarthquakeAsyncClass extends AsyncTask<String, Void, ArrayList<EarthquakeItem>> {
-        @Override
-        protected ArrayList<EarthquakeItem> doInBackground(String... strings) {
-            //strings[0] = USGS_REQUEST_URL;
-            if (strings.length < 1 || strings[0] == null)
-                return null;
-            return QueryUtils.fetchEarthquakes(strings[0]);
-        }
+    @Override
+    public void onLoadFinished(Loader<List<EarthquakeItem>> loader, List<EarthquakeItem> data) {
+        Log.e(LOG_TAG, "onLoadFinished() callback");
+        earthquakeAdapter.clear();
+        if (data != null || !data.isEmpty())
+            earthquakeAdapter.addAll(data);
+    }
 
-        @Override
-        protected void onPostExecute(ArrayList<EarthquakeItem> earthquakeItems) {
-            updateUI(earthquakeItems);
-        }
+    @Override
+    public void onLoaderReset(Loader<List<EarthquakeItem>> loader) {
+        Log.e(LOG_TAG, "onLoaderReset() callback");
+        earthquakeAdapter.clear();
     }
 }

@@ -38,6 +38,7 @@ public final class QueryUtils {
     }
 
     public static ArrayList<EarthquakeItem> fetchEarthquakes(String requestUrl) {
+        Log.e(LOG_TAG, "QueryUtils fetchEarthquakeData() method");
         URL url = createUrl(requestUrl);
         String jsonResponse = null;
         try {
@@ -115,13 +116,21 @@ public final class QueryUtils {
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
+            //Opening url connection
             urlConnection = (HttpURLConnection) url.openConnection();
+            //Setting Read Timeout to 10000 miliseconds
             urlConnection.setReadTimeout(10000);
+            //Setting Connect Timeour to 15000 miliseconds
             urlConnection.setConnectTimeout(15000);
+            //Setting Requested Method
             urlConnection.setRequestMethod("GET");
+            //Connecting
             urlConnection.connect();
+            //Checking if response code is correct
             if (urlConnection.getResponseCode() == 200) {
+                //Getting inputStream from server
                 inputStream = urlConnection.getInputStream();
+                //Parsing inputStream to json
                 jsonResponse = readFromStream(inputStream);
             } else
                 Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
@@ -139,10 +148,15 @@ public final class QueryUtils {
     }
 
     private static String readFromStream(InputStream stream) throws IOException {
+        //Creating new StringBuilder
         StringBuilder output = new StringBuilder();
+        //Checking if input stream isn't null
         if (stream != null) {
+            //Creating new input stream reader
             InputStreamReader inputStreamReader = new InputStreamReader(stream);
+            //Creating new buffered reader
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            //Reading line from buffered reader
             String line = bufferedReader.readLine();
             while (line != null) {
                 output.append(line);
