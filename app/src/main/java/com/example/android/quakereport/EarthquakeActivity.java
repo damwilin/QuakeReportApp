@@ -17,8 +17,11 @@ package com.example.android.quakereport;
 
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -51,9 +54,14 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
         earthquakeListView.setEmptyView(empty);
         earthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<EarthquakeItem>());
         earthquakeListView.setAdapter(earthquakeAdapter);
-        LoaderManager loaderManager = getLoaderManager();
-        loaderManager.initLoader(LOADER_ID, null, this);
-        Log.e(LOG_TAG, "initLoader()");
+        if (!isInternetConnection()) {
+            progressBar.setVisibility(View.GONE);
+            empty.setText("No internet connection");
+        } else {
+            Log.e(LOG_TAG, "initLoader()");
+            LoaderManager loaderManager = getLoaderManager();
+            loaderManager.initLoader(LOADER_ID, null, this);
+        }
         earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -90,5 +98,12 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
     public void onLoaderReset(Loader<List<EarthquakeItem>> loader) {
         Log.e(LOG_TAG, "onLoaderReset() callback");
         earthquakeAdapter.clear();
+    }
+
+    private boolean isInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 }
