@@ -26,6 +26,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +38,17 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
     private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
     private static final int LOADER_ID = 1;
     private EarthquakeAdapter earthquakeAdapter;
+    private TextView empty;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
+        empty = (TextView) findViewById(R.id.empty);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         ListView earthquakeListView = (ListView) findViewById(R.id.list);
+        earthquakeListView.setEmptyView(empty);
         earthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<EarthquakeItem>());
         earthquakeListView.setAdapter(earthquakeAdapter);
         LoaderManager loaderManager = getLoaderManager();
@@ -71,6 +79,8 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
     @Override
     public void onLoadFinished(Loader<List<EarthquakeItem>> loader, List<EarthquakeItem> data) {
         Log.e(LOG_TAG, "onLoadFinished() callback");
+        progressBar.setVisibility(View.GONE);
+        empty.setText("No earthquakes found");
         earthquakeAdapter.clear();
         if (data != null || !data.isEmpty())
             earthquakeAdapter.addAll(data);
